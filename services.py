@@ -5,6 +5,10 @@ from pco_functions import (
     get_plan_items as _get_plan_items,
     get_plan_team_members as _get_plan_team_members,
     get_songs as _get_songs,
+    get_all_arrangements_for_song as _get_all_arrangements_for_song,
+    get_arrangement_for_song as _get_arrangement_for_song,
+    get_keys_for_arrangement_of_song as _get_keys_for_arrangement_of_song,
+    create_key_for_arrangement as _create_key_for_arrangement,
     create_song as _create_song,
     find_song_by_title as _find_song_by_title,
     get_song as _get_song,
@@ -59,35 +63,59 @@ def get_all_arrangements_for_song(song_id: str) -> list:
     """
     Get a list of all the arrangements for a particular song from the Planning Center Online API.
 
-    Args: 
-        song_id (str): The ID for the song. 
+    Args:
+        song_id (str): The ID for the song.
     """
-    response = pco.get(f'/services/v2/songs/{song_id}/arrangements')
-    return response['data']
+    return _get_all_arrangements_for_song(song_id)
 
 @mcp.tool()
-def get_arrangement_for_song(song_id: str, arrangement_id: str) -> list:
+def get_arrangement_for_song(song_id: str, arrangement_id: str) -> dict:
     """
     Get information for a particular song from the Planning Center Online API.
 
-    Args: 
-        song_id (str): The ID for the song. 
-        arrangement_id (str): The ID for the arrangement within a song. 
+    Args:
+        song_id (str): The ID for the song.
+        arrangement_id (str): The ID for the arrangement within a song.
     """
-    response = pco.get(f'/services/v2/songs/{song_id}/arrangements/{arrangement_id}')
-    return response['data']
+    return _get_arrangement_for_song(song_id, arrangement_id)
 
 @mcp.tool()
 def get_keys_for_arrangement_of_song(song_id: str, arrangement_id: str) -> list:
     """
-    Get a list of keys available for a particular song ID and arrangement ID from the Planning Center Online API. 
+    Get a list of keys available for a particular song ID and arrangement ID from the Planning Center Online API.
 
-    Args: 
-        song_id (str): The ID for the song. 
-        arrangement_id (str): The ID for the arrangement within a song. 
+    Args:
+        song_id (str): The ID for the song.
+        arrangement_id (str): The ID for the arrangement within a song.
     """
-    response = pco.get(f'/services/v2/songs/{song_id}/arrangements{arrangement_id}/keys')
-    return response['data']
+    return _get_keys_for_arrangement_of_song(song_id, arrangement_id)
+
+@mcp.tool()
+def create_key_for_arrangement(
+    song_id: str,
+    arrangement_id: str,
+    starting_key: str,
+    ending_key: str = None,
+    name: str = None,
+) -> dict:
+    """
+    Add a new key to a particular arrangement of a song.
+
+    Whether a key is minor is inferred from its notation (e.g. "Dm" for D minor),
+    not passed as a separate flag - the PCO API rejects starting_minor/ending_minor
+    as explicit attributes on create.
+
+    Args:
+        song_id (str): The ID for the song.
+        arrangement_id (str): The ID for the arrangement within a song.
+        starting_key (str): The key the arrangement starts in (e.g. "G" or "Dm").
+        ending_key (str, optional): The key the arrangement modulates to, if any.
+        name (str, optional): A display name for the key (e.g. "Capo 3").
+
+    Returns:
+        dict: The created key data.
+    """
+    return _create_key_for_arrangement(song_id, arrangement_id, starting_key, ending_key, name)
 
 @mcp.tool()
 def create_song(title: str, ccli: str = None) -> dict:
