@@ -6,6 +6,8 @@ from pco_functions import (
     get_plan_team_members as _get_plan_team_members,
     create_plan as _create_plan,
     update_plan as _update_plan,
+    delete_plan as _delete_plan,
+    delete_plan_item as _delete_plan_item,
     add_header_to_plan as _add_header_to_plan,
     add_song_to_plan as _add_song_to_plan,
     add_item_to_plan as _add_item_to_plan,
@@ -87,6 +89,35 @@ def update_plan(service_type_id: str, plan_id: str, title: str = None) -> dict:
         dict: The updated plan data.
     """
     return _update_plan(service_type_id, plan_id, title)
+
+@mcp.tool()
+def delete_plan(service_type_id: str, plan_id: str) -> dict:
+    """
+    Delete a plan. This also deletes all of its items.
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan to delete.
+
+    Returns:
+        dict: Success status and message.
+    """
+    return _delete_plan(service_type_id, plan_id)
+
+@mcp.tool()
+def delete_plan_item(service_type_id: str, plan_id: str, item_id: str) -> dict:
+    """
+    Delete a single item (song, header, or generic entry) from a plan.
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan the item belongs to.
+        item_id (str): The ID of the item to delete.
+
+    Returns:
+        dict: Success status and message.
+    """
+    return _delete_plan_item(service_type_id, plan_id, item_id)
 
 @mcp.tool()
 def add_header_to_plan(service_type_id: str, plan_id: str, title: str, sequence: int = None) -> dict:

@@ -74,6 +74,35 @@ def update_plan(service_type_id: str, plan_id: str, title: str = None) -> dict:
     response = pco.patch(f'/services/v2/service_types/{service_type_id}/plans/{plan_id}', body)
     return response['data']
 
+def delete_plan(service_type_id: str, plan_id: str) -> dict:
+    """
+    Delete a plan. This also deletes all of its items.
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan to delete.
+
+    Returns:
+        dict: Success status and message.
+    """
+    pco.delete(f'/services/v2/service_types/{service_type_id}/plans/{plan_id}')
+    return {"success": True, "message": f"Deleted plan {plan_id}"}
+
+def delete_plan_item(service_type_id: str, plan_id: str, item_id: str) -> dict:
+    """
+    Delete a single item (song, header, or generic entry) from a plan.
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan the item belongs to.
+        item_id (str): The ID of the item to delete.
+
+    Returns:
+        dict: Success status and message.
+    """
+    pco.delete(f'/services/v2/service_types/{service_type_id}/plans/{plan_id}/items/{item_id}')
+    return {"success": True, "message": f"Deleted item {item_id} from plan {plan_id}"}
+
 def add_header_to_plan(service_type_id: str, plan_id: str, title: str, sequence: int = None) -> dict:
     """
     Add a header entry to a plan (e.g. a section label like "Opening" or "Communion").
