@@ -34,6 +34,131 @@ def get_plan_team_members(plan_id: str) -> list:
     response = pco.get(f'/services/v2/plans/{plan_id}/team_members')
     return response['data']
 
+def create_plan(service_type_id: str, title: str = None) -> dict:
+    """
+    Create a new plan within a service type.
+
+    Args:
+        service_type_id (str): The ID of the service type to create the plan under.
+        title (str, optional): The title of the plan. If omitted, the plan is untitled
+            and displays by its date instead (PCO's default behavior).
+
+    Returns:
+        dict: The created plan data.
+    """
+    attributes = {}
+    if title is not None:
+        attributes["title"] = title
+
+    body = pco.template('Plan', attributes)
+    response = pco.post(f'/services/v2/service_types/{service_type_id}/plans', body)
+    return response['data']
+
+def update_plan(service_type_id: str, plan_id: str, title: str = None) -> dict:
+    """
+    Update an existing plan's title.
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan to update.
+        title (str, optional): The new title for the plan.
+
+    Returns:
+        dict: The updated plan data.
+    """
+    attributes = {}
+    if title is not None:
+        attributes["title"] = title
+
+    body = pco.template('Plan', attributes)
+    response = pco.patch(f'/services/v2/service_types/{service_type_id}/plans/{plan_id}', body)
+    return response['data']
+
+def add_header_to_plan(service_type_id: str, plan_id: str, title: str, sequence: int = None) -> dict:
+    """
+    Add a header entry to a plan (e.g. a section label like "Opening" or "Communion").
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan to add the header to.
+        title (str): The header's label.
+        sequence (int, optional): Position in the plan's item order. If omitted, the
+            header is appended to the end of the plan.
+
+    Returns:
+        dict: The created plan item data.
+    """
+    attributes = {"item_type": "header", "title": title}
+    if sequence is not None:
+        attributes["sequence"] = sequence
+
+    body = pco.template('Item', attributes)
+    response = pco.post(f'/services/v2/service_types/{service_type_id}/plans/{plan_id}/items', body)
+    return response['data']
+
+def add_song_to_plan(
+    service_type_id: str,
+    plan_id: str,
+    song_id: str,
+    arrangement_id: str = None,
+    title: str = None,
+    sequence: int = None,
+) -> dict:
+    """
+    Add a song entry to a plan.
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan to add the song to.
+        song_id (str): The ID of the song to add.
+        arrangement_id (str, optional): The ID of the specific arrangement to use.
+        title (str, optional): Display title for the item. Defaults to the song's title -
+            PCO does not fill this in automatically like the web UI does.
+        sequence (int, optional): Position in the plan's item order. If omitted, the
+            item is appended to the end of the plan.
+
+    Returns:
+        dict: The created plan item data.
+    """
+    if title is None:
+        title = get_song(song_id)["attributes"]["title"]
+
+    attributes = {"item_type": "song", "title": title}
+    if sequence is not None:
+        attributes["sequence"] = sequence
+
+    relationships = {"song": {"data": {"type": "Song", "id": song_id}}}
+    if arrangement_id is not None:
+        relationships["arrangement"] = {"data": {"type": "Arrangement", "id": arrangement_id}}
+
+    body = pco.template('Item', attributes)
+    body["data"]["relationships"] = relationships
+    response = pco.post(f'/services/v2/service_types/{service_type_id}/plans/{plan_id}/items', body)
+    return response['data']
+
+def add_item_to_plan(service_type_id: str, plan_id: str, title: str, sequence: int = None) -> dict:
+    """
+    Add a generic entry to a plan (anything that isn't a song or a header,
+    e.g. "Welcome" or "Announcements").
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan to add the item to.
+        title (str): The item's title.
+        sequence (int, optional): Position in the plan's item order. If omitted, the
+            item is appended to the end of the plan.
+
+    Returns:
+        dict: The created plan item data.
+    """
+    attributes = {"item_type": "item", "title": title}
+    if sequence is not None:
+        attributes["sequence"] = sequence
+
+    body = pco.template('Item', attributes)
+    response = pco.post(f'/services/v2/service_types/{service_type_id}/plans/{plan_id}/items', body)
+    return response['data']
+
 def get_songs() -> list:
     """Fetch a list of songs from the Planning Center Online API."""
     response = pco.get('/services/v2/songs?per_page=200&where[hidden]=false')

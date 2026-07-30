@@ -4,6 +4,11 @@ from pco_functions import (
     get_plans as _get_plans,
     get_plan_items as _get_plan_items,
     get_plan_team_members as _get_plan_team_members,
+    create_plan as _create_plan,
+    update_plan as _update_plan,
+    add_header_to_plan as _add_header_to_plan,
+    add_song_to_plan as _add_song_to_plan,
+    add_item_to_plan as _add_item_to_plan,
     get_songs as _get_songs,
     get_all_arrangements_for_song as _get_all_arrangements_for_song,
     get_arrangement_for_song as _get_arrangement_for_song,
@@ -52,6 +57,98 @@ def get_plan_team_members(plan_id: str) -> list:
         plan_id (str): The ID of the plan.
     """
     return _get_plan_team_members(plan_id)
+
+@mcp.tool()
+def create_plan(service_type_id: str, title: str = None) -> dict:
+    """
+    Create a new plan within a service type.
+
+    Args:
+        service_type_id (str): The ID of the service type to create the plan under.
+        title (str, optional): The title of the plan. If omitted, the plan is untitled
+            and displays by its date instead (PCO's default behavior).
+
+    Returns:
+        dict: The created plan data.
+    """
+    return _create_plan(service_type_id, title)
+
+@mcp.tool()
+def update_plan(service_type_id: str, plan_id: str, title: str = None) -> dict:
+    """
+    Update an existing plan's title.
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan to update.
+        title (str, optional): The new title for the plan.
+
+    Returns:
+        dict: The updated plan data.
+    """
+    return _update_plan(service_type_id, plan_id, title)
+
+@mcp.tool()
+def add_header_to_plan(service_type_id: str, plan_id: str, title: str, sequence: int = None) -> dict:
+    """
+    Add a header entry to a plan (e.g. a section label like "Opening" or "Communion").
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan to add the header to.
+        title (str): The header's label.
+        sequence (int, optional): Position in the plan's item order. If omitted, the
+            header is appended to the end of the plan.
+
+    Returns:
+        dict: The created plan item data.
+    """
+    return _add_header_to_plan(service_type_id, plan_id, title, sequence)
+
+@mcp.tool()
+def add_song_to_plan(
+    service_type_id: str,
+    plan_id: str,
+    song_id: str,
+    arrangement_id: str = None,
+    title: str = None,
+    sequence: int = None,
+) -> dict:
+    """
+    Add a song entry to a plan.
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan to add the song to.
+        song_id (str): The ID of the song to add.
+        arrangement_id (str, optional): The ID of the specific arrangement to use.
+        title (str, optional): Display title for the item. Defaults to the song's title -
+            PCO does not fill this in automatically like the web UI does.
+        sequence (int, optional): Position in the plan's item order. If omitted, the
+            item is appended to the end of the plan.
+
+    Returns:
+        dict: The created plan item data.
+    """
+    return _add_song_to_plan(service_type_id, plan_id, song_id, arrangement_id, title, sequence)
+
+@mcp.tool()
+def add_item_to_plan(service_type_id: str, plan_id: str, title: str, sequence: int = None) -> dict:
+    """
+    Add a generic entry to a plan (anything that isn't a song or a header,
+    e.g. "Welcome" or "Announcements").
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan to add the item to.
+        title (str): The item's title.
+        sequence (int, optional): Position in the plan's item order. If omitted, the
+            item is appended to the end of the plan.
+
+    Returns:
+        dict: The created plan item data.
+    """
+    return _add_item_to_plan(service_type_id, plan_id, title, sequence)
 
 @mcp.tool()
 def get_songs() -> list:
