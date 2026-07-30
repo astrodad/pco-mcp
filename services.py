@@ -111,6 +111,7 @@ def add_song_to_plan(
     plan_id: str,
     song_id: str,
     arrangement_id: str = None,
+    key_id: str = None,
     title: str = None,
     sequence: int = None,
 ) -> dict:
@@ -122,6 +123,9 @@ def add_song_to_plan(
         plan_id (str): The ID of the plan to add the song to.
         song_id (str): The ID of the song to add.
         arrangement_id (str, optional): The ID of the specific arrangement to use.
+        key_id (str, optional): The ID of a key (from get_keys_for_arrangement_of_song,
+            or newly created via create_key_for_arrangement) to assign to this item.
+            Requires arrangement_id - PCO silently drops the key otherwise.
         title (str, optional): Display title for the item. Defaults to the song's title -
             PCO does not fill this in automatically like the web UI does.
         sequence (int, optional): Position in the plan's item order. If omitted, the
@@ -130,7 +134,7 @@ def add_song_to_plan(
     Returns:
         dict: The created plan item data.
     """
-    return _add_song_to_plan(service_type_id, plan_id, song_id, arrangement_id, title, sequence)
+    return _add_song_to_plan(service_type_id, plan_id, song_id, arrangement_id, key_id, title, sequence)
 
 @mcp.tool()
 def add_item_to_plan(service_type_id: str, plan_id: str, title: str, sequence: int = None) -> dict:

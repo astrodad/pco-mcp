@@ -101,6 +101,7 @@ def add_song_to_plan(
     plan_id: str,
     song_id: str,
     arrangement_id: str = None,
+    key_id: str = None,
     title: str = None,
     sequence: int = None,
 ) -> dict:
@@ -112,6 +113,9 @@ def add_song_to_plan(
         plan_id (str): The ID of the plan to add the song to.
         song_id (str): The ID of the song to add.
         arrangement_id (str, optional): The ID of the specific arrangement to use.
+        key_id (str, optional): The ID of a key (from get_keys_for_arrangement_of_song,
+            or newly created via create_key_for_arrangement) to assign to this item.
+            Requires arrangement_id - PCO silently drops the key otherwise.
         title (str, optional): Display title for the item. Defaults to the song's title -
             PCO does not fill this in automatically like the web UI does.
         sequence (int, optional): Position in the plan's item order. If omitted, the
@@ -120,6 +124,9 @@ def add_song_to_plan(
     Returns:
         dict: The created plan item data.
     """
+    if key_id is not None and arrangement_id is None:
+        raise ValueError("arrangement_id is required when key_id is provided")
+
     if title is None:
         title = get_song(song_id)["attributes"]["title"]
 
@@ -130,6 +137,8 @@ def add_song_to_plan(
     relationships = {"song": {"data": {"type": "Song", "id": song_id}}}
     if arrangement_id is not None:
         relationships["arrangement"] = {"data": {"type": "Arrangement", "id": arrangement_id}}
+    if key_id is not None:
+        relationships["key"] = {"data": {"type": "Key", "id": key_id}}
 
     body = pco.template('Item', attributes)
     body["data"]["relationships"] = relationships
