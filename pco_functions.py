@@ -74,6 +74,58 @@ def update_plan(service_type_id: str, plan_id: str, title: str = None) -> dict:
     response = pco.patch(f'/services/v2/service_types/{service_type_id}/plans/{plan_id}', body)
     return response['data']
 
+def find_series_by_title(title: str) -> list:
+    """
+    Find series by title.
+
+    Args:
+        title (str): The title of the series to search for.
+
+    Returns:
+        list: List of series matching the title.
+    """
+    response = pco.get(f'/services/v2/series?where[title]={title}')
+    return response['data']
+
+def create_series(title: str) -> dict:
+    """
+    Create a new series.
+
+    Args:
+        title (str): The title of the series.
+
+    Returns:
+        dict: The created series data.
+    """
+    body = pco.template('Series', {"title": title})
+    response = pco.post('/services/v2/series', body)
+    return response['data']
+
+def set_plan_series(service_type_id: str, plan_id: str, series_id: str) -> dict:
+    """
+    Assign a plan to a series. Use find_series_by_title to look up an existing
+    series, or create_series to make a new one, then pass its id here.
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan to update.
+        series_id (str): The ID of the series to assign the plan to.
+
+    Returns:
+        dict: The updated plan data.
+    """
+    body = {
+        "data": {
+            "type": "Plan",
+            "attributes": {},
+            "relationships": {
+                "series": {"data": {"type": "Series", "id": series_id}}
+            }
+        }
+    }
+    response = pco.patch(f'/services/v2/service_types/{service_type_id}/plans/{plan_id}', body)
+    return response['data']
+
 def delete_plan(service_type_id: str, plan_id: str) -> dict:
     """
     Delete a plan. This also deletes all of its items.

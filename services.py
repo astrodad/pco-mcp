@@ -6,6 +6,9 @@ from pco_functions import (
     get_plan_team_members as _get_plan_team_members,
     create_plan as _create_plan,
     update_plan as _update_plan,
+    find_series_by_title as _find_series_by_title,
+    create_series as _create_series,
+    set_plan_series as _set_plan_series,
     delete_plan as _delete_plan,
     delete_plan_item as _delete_plan_item,
     add_header_to_plan as _add_header_to_plan,
@@ -89,6 +92,48 @@ def update_plan(service_type_id: str, plan_id: str, title: str = None) -> dict:
         dict: The updated plan data.
     """
     return _update_plan(service_type_id, plan_id, title)
+
+@mcp.tool()
+def find_series_by_title(title: str) -> list:
+    """
+    Find series by title.
+
+    Args:
+        title (str): The title of the series to search for.
+
+    Returns:
+        list: List of series matching the title.
+    """
+    return _find_series_by_title(title)
+
+@mcp.tool()
+def create_series(title: str) -> dict:
+    """
+    Create a new series.
+
+    Args:
+        title (str): The title of the series.
+
+    Returns:
+        dict: The created series data.
+    """
+    return _create_series(title)
+
+@mcp.tool()
+def set_plan_series(service_type_id: str, plan_id: str, series_id: str) -> dict:
+    """
+    Assign a plan to a series. Use find_series_by_title to look up an existing
+    series, or create_series to make a new one, then pass its id here.
+
+    Args:
+        service_type_id (str): The ID of the service type the plan belongs to.
+        plan_id (str): The ID of the plan to update.
+        series_id (str): The ID of the series to assign the plan to.
+
+    Returns:
+        dict: The updated plan data.
+    """
+    return _set_plan_series(service_type_id, plan_id, series_id)
 
 @mcp.tool()
 def delete_plan(service_type_id: str, plan_id: str) -> dict:
